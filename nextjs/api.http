@@ -10,7 +10,7 @@ GET http://localhost:3000/api/chats
 Content-Type: application/json
 
 ###
-@chatId = f2758a7b-6e5a-4947-a62d-439e36fed62e
+@chatId = 700ff969-f621-4ec8-8bf4-5bcbf4ec5db5
 GET http://localhost:3000/api/chats/{{chatId}}/messages
 Content-Type: application/json
 
@@ -23,5 +23,5 @@ Content-Type: application/json
 }
 
 ###
-@messageId = 9c64ef45-5587-4aba-b1f1-d76d6247fa4a
+@messageId = d74845e6-5c4f-49be-b37e-cd0d6aacaf7a
 GET http://localhost:3000/api/messages/{{messageId}}/events
