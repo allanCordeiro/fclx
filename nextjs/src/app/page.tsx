@@ -4,15 +4,17 @@ import useSWR from "swr";
 import useSWRSubscription from "swr/subscription";
 import ClientHttp, { fetcher } from "../http/http";
 import { Chat, Message } from "@prisma/client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useLayoutEffect, useState } from "react";
 import { PlusIcon } from "./components/PlusIcon";
 import { MessageIcon } from "./components/MessageIcon";
 import { ArrowRightIcon } from "./components/ArrowRightIcon";
+import { LogoutIcon } from "./components/LogoutIcon";
 import Image from "next/image";
 import { UserIcon } from "./components/UserIcon";
 import { marked } from "marked";
 import hljs from "highlight.js";
+import { signOut } from "next-auth/react";
 
 marked.setOptions({
   highlight: function (code: string, lang: string) {
@@ -197,6 +199,12 @@ export default function Home() {
     textArea.value = "";
   }
 
+  async function logout() {
+    await signOut({redirect: false});
+    const {url: logoutUrl} = await ClientHttp.get(`logout-url?${new URLSearchParams({ redirect: window.location.origin })}`);
+    window.location.href = logoutUrl;
+  }
+
   return (
     <div className="overflow-hidden w-full h-full relative flex">
       {/* -- sidebar -- */}
@@ -231,7 +239,15 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </div>
+        <button
+          className="flex p-3 mt-1 gap-3 rounded hover:bg-gray-500/10 text-sm text-white"
+          onClick={() => logout()}
+        >
+          <LogoutIcon className="h-5 w-5" />
+          Log out
+        </button>
+      </div>          
+      
       {/* -- end sidebar -- */}
 
       {/* -- main content */}

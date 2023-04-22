@@ -1,10 +1,23 @@
+import { withAuth } from "@/app/api/helpers";
 import { prisma } from "@/prisma/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { tokenToString } from "typescript";
 
-export async function GET(
+export const GET = withAuth(async (
     _request: NextRequest, 
+    token,
     {params}: {params: {chatId: string}}
-    ) {
+    ) => {
+        
+        const chat = await prisma.chat.findUniqueOrThrow({
+            where: {
+                id: params.chatId,
+            },
+        });
+        if(chat.user_id !== token.sub) {
+            return NextResponse.json({error: "not found"}, { status: 404});
+        }
+
         const messages = await prisma.message.findMany({
             where: {
                 chat_id: params.chatId,
@@ -14,16 +27,21 @@ export async function GET(
             },
         });
         return NextResponse.json(messages);
-}
+});
 
-export async function POST(request: NextRequest, 
+export const POST = withAuth(async (request: NextRequest, 
+    token,
     {params}: {params: {chatId: string}}
-    ) { 
+    ) => { 
         const chat = await prisma.chat.findUniqueOrThrow({
             where: {
                 id: params.chatId
             }
     });
+
+    if(chat.user_id !== token.sub) {
+        return NextResponse.json({error: "not found"}, { status: 404});
+    }
 
     const body = await request.json();
     const messageCreated = await prisma.message.create({
@@ -34,5 +52,4 @@ export async function POST(request: NextRequest,
     });
 
     return NextResponse.json(messageCreated);
-
-}
+});
